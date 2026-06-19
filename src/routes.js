@@ -1,5 +1,3 @@
-// CRIANDO SERVIDOR COM EXPRESS //
-
 const express = require("express");
 const { todos } = require("./data/memory.js");
 
@@ -33,37 +31,47 @@ router.post("/todos", (req, res) => { // POST
     }) // informar que a tarefa foi criada com sucesso
 })
 
-router.put("/todos:titulo", (req, res) => {
-    const { titulo } = req.body
+router.put("/todos/:titulo", (req, res) => {
+    const { titulo } = req.params; // puxando o titulo da url
+    const { novoTitulo } = req.body // puxando o novo titulo do body
 
-    if(!titulo){ 
-        return res.status(400).json({mensagem: "Titulo é obrigatório"})
-    } // erro se não tiver titulo
+    const tarefa = todos.find(tarefa => tarefa.titulo === titulo) // encontrar tarefa pelo titulo
 
-    if(titulo === titulo){
+    if(!tarefa){
+        return res.status(404).json({mensagem: "Tarefa não encontrada"})
+    }
 
-    } // verificar se o titulo conferente com o titulo da tarefa que deseja editar
+    if(!novoTitulo){
+        return res.status(400).json({mensagem: "Nenhuma informação para atualizar"})
+    }
+
+    tarefa.titulo = novoTitulo; // atualizar o titulo da tarefa
 
     return res.status(200).json({
         mensagem: "Tarefa editada com sucesso",
-        
-    }) // informar que a tarefa foi editada com sucesso
+        tarefaEditada: tarefa
+    })
 });
 
-router.delete("/todos:titulo", (req, res) => {
-    const { titulo } = req.body;
+router.delete("/todos/:titulo", (req, res) => {
+    const { titulo } = req.params; // puxando o titulo da url
 
     if(!titulo){
-
+        return res.status(400).json({mensagem: "Titulo é obrigatório"})
     } // erro se não tiver titulo
 
-    if(titulo === titulo){
+    const tarefaID = todos.findIndex(tarefa => tarefa.titulo === titulo) // encontrar tarefa pelo titulo
 
+    if(tarefaID === -1){
+        return res.status(404).json({mensagem: "Tarefa não encontrada"})
     }
 
+    todos.splice(tarefaID, 1) // deletar tarefa do array
+
     return res.status(200).json({
-        mensagem: "Tarefa deletada com sucesso"
-    }) // informar que a tarefa foi deletada com sucesso
+        mensagem: "Tarefa deletada com sucesso",
+        restantes: todos
+    }) 
 });
 
 
