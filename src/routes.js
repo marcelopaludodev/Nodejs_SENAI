@@ -1,7 +1,7 @@
-// SERVIDOR E IMPORTAÇÕES //
+// IMPORTAÇÕES //
 
 const express = require("express");
-const { todos } = require("./data/memory.js");
+const memory = require("./data/memory");
 
 // ROTEADOR //
 
@@ -9,49 +9,48 @@ const router = express.Router();
 
 // ROTAS //
 
-router.get("/todos", (req, res) => { // GET
-    return res.status(200).json({
-        tarefa: todos
-    }) // listar todos as tarefas
-})
+router.get("/todos", (req, res) => { 
+    return res.status(200).json({ tarefas: memory.todos })
+});
 
-router.post("/todos", (req, res) => { // POST
-    const { titulo, descricao } = req.body // puxando dados
+router.post("/todos", (req, res) => { 
+    const { titulo, descricao } = req.body
 
-    if(!titulo){
-        return res.status(400).json({mensagem: "Titulo é obrigatório"})
-    } // erro se não tiver titulo
+    if(!titulo){ return res.status(400).json({mensagem: "Titulo é obrigatório"}) } 
     
     const novaTarefa = {
-        id: new Date().toString(),
+        id: memory.nextId++,
         titulo,
         descricao,
         feito: false
-    } // criar nova tarefa
+    } 
 
-    todos.push(novaTarefa); // colocar nova tarefa no array
+    memory.todos.push(novaTarefa); 
 
     return res.status(201).json({ 
         mensagem: "Tarefa criada com sucesso",
         tarefaCriada: novaTarefa
-    }) // informar que a tarefa foi criada com sucesso
-})
+    });
+});
 
-router.put("/todos/:titulo", (req, res) => {
-    const { titulo } = req.params; // puxando o titulo da url
-    const { novoTitulo } = req.body // puxando o novo titulo do body
+router.put("/todos/:id", (req, res) => {
+    const { id } = req.params; 
+    const { titulo, descricao, feito } = req.body 
 
-    const tarefa = todos.find(tarefa => tarefa.titulo === titulo) // encontrar tarefa pelo titulo
+    const tarefa = memory.todos.find((i) => i.id === parseInt(id));
 
     if(!tarefa){
         return res.status(404).json({mensagem: "Tarefa não encontrada"})
     }
 
-    if(!novoTitulo){
+    if(!titulo && !descricao && feito === undefined){
         return res.status(400).json({mensagem: "Nenhuma informação para atualizar"})
     }
 
-    tarefa.titulo = novoTitulo; // atualizar o titulo da tarefa
+    if(titulo){ tarefa.titulo = titulo };
+    if(descricao){ tarefa.descricao = descricao };
+
+    if(feito !== undefined){ tarefa.feito = feito };
 
     return res.status(200).json({
         mensagem: "Tarefa editada com sucesso",
@@ -59,24 +58,23 @@ router.put("/todos/:titulo", (req, res) => {
     })
 });
 
-router.delete("/todos/:titulo", (req, res) => {
-    const { titulo } = req.params; // puxando o titulo da url
+router.delete("/todos/:id", (req, res) => {
+    const { id } = req.params; 
 
-    if(!titulo){
-        return res.status(400).json({mensagem: "Titulo é obrigatório"})
-    } // erro se não tiver titulo
+    if(!id){
+        return res.status(400).json({mensagem: "ID é obrigatório"})
+    } 
 
-    const tarefaID = todos.findIndex(tarefa => tarefa.titulo === titulo) // encontrar tarefa pelo titulo
+    const deletar = memory.todos.findIndex((i) => i.id === parseInt(id));
 
-    if(tarefaID === -1){
+    if(deletar === -1){ // o findIndex retorna -1 caso não encontre o item no array
         return res.status(404).json({mensagem: "Tarefa não encontrada"})
     }
 
-    todos.splice(tarefaID, 1) // deletar tarefa do array
+    memory.todos.splice(deletar, 1)
 
     return res.status(200).json({
         mensagem: "Tarefa deletada com sucesso",
-        restantes: todos
     }) 
 });
 

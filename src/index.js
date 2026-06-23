@@ -1,20 +1,22 @@
 // CRIANDO O SERVIDOR //
 
 const express = require("express");
-const app = express();
+const servidor = express();
+const middlewares = require("./auth.js")
 
 // IMPORTAÇÕES //
 
 const rotas = require("./routes")
 
-// MIDDLEWARES //
+// USES //
 
-app.use(express.json()) // formatador de json
-app.use("/", rotas)
+servidor.use(middlewares.middlewareSenha)
+servidor.use(express.json())
+servidor.use("/", rotas)
 
 // RODANDO O SERVIDOR //
 
-app.listen(3000, () =>{
+servidor.listen(3000, () =>{
     console.log("Servidor Rodando!")
 });
 
