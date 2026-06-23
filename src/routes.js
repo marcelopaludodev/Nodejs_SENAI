@@ -1,7 +1,13 @@
+// SERVIDOR E IMPORTAÇÕES //
+
 const express = require("express");
 const { todos } = require("./data/memory.js");
 
-const router = express.Router(); // ROTEADOR
+// ROTEADOR //
+
+const router = express.Router(); 
+
+// ROTAS //
 
 router.get("/todos", (req, res) => { // GET
     return res.status(200).json({
@@ -74,5 +80,6 @@ router.delete("/todos/:titulo", (req, res) => {
     }) 
 });
 
+// EXPORTAÇÕES //
 
-module.exports = router; // EXPORTAR ROTEADOR
+module.exports = router; 

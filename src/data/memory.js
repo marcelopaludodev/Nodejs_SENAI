@@ -4,4 +4,4 @@ const todos = [
     { id: 3, titulo: "Revisar",descricao: "Tarefa 3", feito: false}
 ];
 
-module.exports = { todos }
+module.exports = { todos };
